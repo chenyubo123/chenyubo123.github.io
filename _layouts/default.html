@@ -1,22 +1,245 @@
 <!DOCTYPE html>
 <html lang="{{ page.lang | default: site.lang | default: "zh-CN" }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title | default: site.title | default: "Blog" }}</title>
+  <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 }}">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&family=Fira+Code:wght@300;400;700&family=Bangers&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{background:#0b0c10;color:#c5c6c7;font-family:'Fira Code',monospace;overflow-x:hidden;min-height:100vh}
+    #starfield{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
 
-  {%- include head.html -%}
+    /* ===== 传送门CSS ===== */
+    .portal-ring{position:fixed;z-index:1;pointer-events:none;opacity:.12}
+    .portal-ring-1{top:-120px;right:-120px;width:400px;height:400px}
+    .portal-ring-2{bottom:-80px;left:-80px;width:300px;height:300px;opacity:.08}
+    .portal-ring-inner{width:100%;height:100%;border-radius:50%;border:8px solid transparent;border-top-color:#00ff41;border-right-color:#00bcd4;border-bottom-color:#00ff41;border-left-color:#76ff03;animation:portalSpin 6s linear infinite;filter:blur(2px)}
+    .portal-ring-inner::before{content:'';position:absolute;top:15%;left:15%;width:70%;height:70%;border-radius:50%;border:4px solid transparent;border-top-color:#00ff41;border-left-color:#00bcd4;animation:portalSpin 4s linear infinite reverse}
+    .portal-ring-inner::after{content:'';position:absolute;top:30%;left:30%;width:40%;height:40%;border-radius:50%;background:radial-gradient(circle,rgba(0,255,65,.3),transparent 70%);animation:portalGlow 3s ease-in-out infinite}
+    @keyframes portalSpin{to{transform:rotate(360deg)}}
+    @keyframes portalGlow{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.8;transform:scale(1.3)}}
 
-  <body>
+    /* ===== 浮动维度数字 ===== */
+    .dimension-float{position:fixed;font-family:'Orbitron',sans-serif;font-size:14px;color:rgba(0,255,65,.06);z-index:0;pointer-events:none;animation:floatUp 20s linear infinite}
+    @keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-100vh) rotate(360deg);opacity:0}}
 
-    {%- include header.html -%}
+    /* ===== 导航栏 ===== */
+    .site-header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(11,12,16,.85);backdrop-filter:blur(20px);border-bottom:2px solid #00ff41;box-shadow:0 0 30px rgba(0,255,65,.15),0 2px 10px rgba(0,0,0,.5);padding:0 30px;display:flex;align-items:center;justify-content:space-between;height:65px}
+    .site-header::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent 0%,#00ff41 20%,#00bcd4 50%,#00ff41 80%,transparent 100%);animation:borderSweep 3s linear infinite}
+    @keyframes borderSweep{0%{opacity:.3}50%{opacity:1}100%{opacity:.3}}
+    .site-title{font-family:'Bangers',cursive;font-size:2em;color:#00ff41;text-decoration:none;letter-spacing:4px;text-shadow:0 0 10px rgba(0,255,65,.5),0 0 40px rgba(0,255,65,.2);transition:all .3s}
+    .site-title:hover{text-shadow:0 0 20px rgba(0,255,65,.8),0 0 60px rgba(0,255,65,.4);transform:scale(1.05)}
+    .site-title .glitch{position:relative}
+    .site-title .glitch::before,.site-title .glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;opacity:.8}
+    .site-title .glitch::before{animation:glitch1 2s infinite;color:#00bcd4;clip-path:inset(0 0 60% 0)}
+    .site-title .glitch::after{animation:glitch2 2s infinite;color:#76ff03;clip-path:inset(40% 0 0 0)}
+    @keyframes glitch1{0%,100%{transform:translate(0)}20%{transform:translate(-3px,2px)}40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,1px)}}
+    @keyframes glitch2{0%,100%{transform:translate(0)}20%{transform:translate(3px,-1px)}40%{transform:translate(-3px,2px)}60%{transform:translate(2px,-2px)}}
+    .site-nav{display:flex;gap:5px}
+    .site-nav a{color:#66fcf1;font-family:'Orbitron',sans-serif;font-size:.7em;letter-spacing:2px;padding:8px 16px;text-decoration:none;border:1px solid transparent;border-radius:4px;transition:all .3s;position:relative;overflow:hidden}
+    .site-nav a:hover{border-color:#00ff41;background:rgba(0,255,65,.1);color:#fff;box-shadow:0 0 15px rgba(0,255,65,.3)}
+    .site-nav a::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,255,65,.2),transparent);transition:left .5s}
+    .site-nav a:hover::before{left:100%}
 
-    <main class="page-content" aria-label="Content">
-      <div class="wrapper">
-        {{ content }}
-      </div>
-    </main>
+    /* ===== 主内容 ===== */
+    .page-content{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:90px 25px 50px}
 
-    {%- include footer.html -%}
+    /* ===== Hero区 ===== */
+    .hero-section{text-align:center;padding:80px 20px 60px;position:relative}
+    .hero-portal{width:180px;height:180px;margin:0 auto 30px;position:relative}
+    .hero-portal-ring{position:absolute;width:100%;height:100%;border-radius:50%;border:6px solid transparent;animation:portalSpin 4s linear infinite}
+    .hero-portal-ring:nth-child(1){border-top-color:#00ff41;border-bottom-color:#00ff41;filter:blur(3px);opacity:.5}
+    .hero-portal-ring:nth-child(2){top:10%;left:10%;width:80%;height:80%;border-left-color:#00bcd4;border-right-color:#00bcd4;animation-direction:reverse;animation-duration:3s;filter:blur(2px);opacity:.6}
+    .hero-portal-ring:nth-child(3){top:20%;left:20%;width:60%;height:60%;border-top-color:#76ff03;border-bottom-color:#76ff03;animation-duration:5s;filter:blur(1px);opacity:.7}
+    .hero-portal-core{position:absolute;top:35%;left:35%;width:30%;height:30%;border-radius:50%;background:radial-gradient(circle,#00ff41,#00bcd4);filter:blur(8px);animation:portalGlow 2s ease-in-out infinite}
+    .hero-title{font-family:'Bangers',cursive;font-size:3.5em;color:#00ff41;letter-spacing:8px;text-shadow:0 0 20px rgba(0,255,65,.6),0 0 60px rgba(0,255,65,.3),3px 3px 0 #00bcd4;margin-bottom:10px;animation:titleFloat 3s ease-in-out infinite}
+    @keyframes titleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+    .hero-subtitle{font-family:'Press Start 2P',cursive;font-size:.65em;color:#45a29e;margin-bottom:30px;letter-spacing:2px}
+    .hero-quote{font-style:italic;color:#c5c6c7;font-size:1em;max-width:550px;margin:0 auto;padding:20px;border-left:3px solid #00ff41;border-right:3px solid #00bcd4;background:rgba(0,255,65,.03);border-radius:4px;line-height:1.8}
+    .hero-quote small{color:#66fcf1;display:block;margin-top:10px;font-size:.85em}
 
-    <div class="portal-decoration"></div>
+    /* ===== Rick名言滚动条 ===== */
+    .rick-quotes-bar{background:rgba(0,255,65,.05);border:1px solid rgba(0,255,65,.15);border-radius:8px;padding:15px 20px;margin:30px 0 40px;overflow:hidden;position:relative}
+    .rick-quotes-bar::before,.rick-quotes-bar::after{content:'';position:absolute;top:0;width:50px;height:100%;z-index:2}
+    .rick-quotes-bar::before{left:0;background:linear-gradient(90deg,#0b0c10,transparent)}
+    .rick-quotes-bar::after{right:0;background:linear-gradient(-90deg,#0b0c10,transparent)}
+    .rick-quotes-scroll{display:flex;gap:60px;animation:scrollQuotes 30s linear infinite;white-space:nowrap}
+    .rick-quotes-scroll span{color:#66fcf1;font-size:.85em;flex-shrink:0}
+    .rick-quotes-scroll span::before{content:'🧪 ';color:#00ff41}
+    @keyframes scrollQuotes{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
-  </body>
+    /* ===== 通知栏 ===== */
+    .notice-bar{background:linear-gradient(135deg,rgba(0,255,65,.08),rgba(0,188,212,.08));border:1px solid rgba(0,255,65,.2);border-radius:8px;padding:15px 25px;margin-bottom:40px;text-align:center;font-size:.95em;line-height:1.6}
+    .notice-bar .highlight{color:#00ff41;font-weight:bold}
+    .notice-bar .highlight2{color:#66fcf1}
 
+    /* ===== 文章卡片 ===== */
+    .posts-list{display:flex;flex-direction:column;gap:25px}
+    .post-card{background:rgba(22,27,34,.8);border:1px solid rgba(0,255,65,.15);border-radius:12px;padding:30px;transition:all .4s;position:relative;overflow:hidden;backdrop-filter:blur(10px)}
+    .post-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,#00ff41,#00bcd4);opacity:0;transition:opacity .4s}
+    .post-card::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,255,65,.05),transparent);transition:left .6s}
+    .post-card:hover{border-color:rgba(0,255,65,.4);box-shadow:0 0 30px rgba(0,255,65,.1),0 10px 40px rgba(0,0,0,.3);transform:translateX(5px)}
+    .post-card:hover::before{opacity:1}
+    .post-card:hover::after{left:100%}
+    .post-card-title{font-family:'Orbitron',sans-serif;font-size:1.3em;color:#66fcf1;text-decoration:none;display:block;margin-bottom:12px;transition:all .3s}
+    .post-card-title:hover{color:#00ff41;text-shadow:0 0 15px rgba(0,255,65,.5)}
+    .post-card-meta{font-family:'Press Start 2P',cursive;font-size:.55em;color:#45a29e;margin-bottom:15px;padding-bottom:12px;border-bottom:1px dashed rgba(0,255,65,.15);display:flex;gap:20px;align-items:center}
+    .post-card-meta .date{color:#00ff41}
+    .post-card-meta .read-more-link{color:#66fcf1;border:1px solid #66fcf1;padding:2px 10px;border-radius:3px;font-family:'Fira Code',monospace;text-decoration:none;font-size:1.5em;transition:all .3s}
+    .post-card-meta .read-more-link:hover{background:#66fcf1;color:#0b0c10}
+    .post-card-excerpt{color:#c5c6c7;line-height:1.8}
+
+    /* ===== 文章详情页 ===== */
+    .post-header{margin-bottom:40px;padding-bottom:30px;border-bottom:2px solid rgba(0,255,65,.2);position:relative}
+    .post-title{font-family:'Bangers',cursive;color:#00ff41;font-size:2.2em;letter-spacing:3px;text-shadow:0 0 15px rgba(0,255,65,.4)}
+    .post-date{color:#45a29e;font-family:'Press Start 2P',cursive;font-size:.55em;margin-top:10px}
+    .post-body{color:#c5c6c7;line-height:1.9;font-size:1.02em}
+    .post-body h2,.post-body h3,.post-body h4{font-family:'Orbitron',sans-serif;color:#66fcf1;border-left:4px solid #00ff41;padding-left:15px;margin:35px 0 15px}
+    .post-body a{color:#66fcf1;border-bottom:1px dashed #66fcf1;transition:all .3s}
+    .post-body a:hover{text-shadow:0 0 10px rgba(102,252,241,.5);border-bottom-style:solid}
+    .post-body blockquote{border-left:4px solid #00ff41;background:rgba(0,255,65,.05);padding:15px 20px;margin:20px 0;border-radius:0 8px 8px 0;font-style:italic}
+    .post-body code{background:rgba(0,255,65,.1);border:1px solid rgba(0,255,65,.2);color:#00ff41;padding:2px 8px;border-radius:4px;font-size:.9em}
+    .post-body pre{background:rgba(6,10,18,.9);border:1px solid rgba(0,255,65,.2);border-left:3px solid #00ff41;border-radius:8px;padding:20px;overflow-x:auto}
+    .post-body pre code{background:none;border:none;color:#00ff41;padding:0}
+    .post-body ul,.post-body ol{padding-left:25px}
+    .post-body li{margin-bottom:8px}
+    .post-body li::marker{color:#00ff41}
+    .post-body table{width:100%;border-collapse:collapse;margin:20px 0}
+    .post-body th{background:rgba(0,255,65,.1);color:#00ff41;padding:10px;border:1px solid rgba(0,255,65,.2);font-family:'Orbitron',sans-serif;font-size:.85em}
+    .post-body td{padding:10px;border:1px solid rgba(0,255,65,.1)}
+
+    /* ===== 关于页面 ===== */
+    .about-section h1{font-family:'Bangers',cursive;color:#00ff41;letter-spacing:5px;font-size:2.5em;text-shadow:0 0 15px rgba(0,255,65,.4)}
+    .about-section blockquote{font-size:1.2em}
+
+    /* ===== 页脚 ===== */
+    .site-footer{position:relative;z-index:2;border-top:2px solid rgba(0,255,65,.15);background:rgba(6,10,18,.9);padding:30px;text-align:center;color:#45a29e;font-size:.85em}
+    .site-footer a{color:#00ff41;text-decoration:none;transition:color .3s}
+    .site-footer a:hover{color:#66fcf1}
+    .site-footer .rick-says{margin-top:15px;font-family:'Press Start 2P',cursive;font-size:.6em;color:rgba(0,255,65,.3);letter-spacing:1px}
+
+    /* ===== 回到顶部传送门 ===== */
+    .back-to-top{position:fixed;bottom:30px;right:30px;width:50px;height:50px;border-radius:50%;border:2px solid #00ff41;background:rgba(0,255,65,.1);color:#00ff41;font-size:1.5em;cursor:pointer;z-index:50;display:none;align-items:center;justify-content:center;transition:all .3s;animation:portalSpin 8s linear infinite}
+    .back-to-top:hover{background:rgba(0,255,65,.3);box-shadow:0 0 20px rgba(0,255,65,.5)}
+    .back-to-top.visible{display:flex}
+
+    /* ===== 扫描线效果 ===== */
+    .scanlines{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;background:repeating-linear-gradient(0deg,rgba(0,0,0,.03) 0px,rgba(0,0,0,.03) 1px,transparent 1px,transparent 2px);opacity:.5}
+
+    /* ===== 响应式 ===== */
+    @media(max-width:768px){
+      .site-header{padding:0 15px;height:55px}
+      .site-title{font-size:1.5em;letter-spacing:2px}
+      .hero-title{font-size:2em;letter-spacing:3px}
+      .hero-subtitle{font-size:.5em}
+      .hero-section{padding:60px 15px 40px}
+      .page-content{padding:75px 15px 30px}
+      .post-card{padding:20px}
+      .site-nav a{padding:6px 10px;font-size:.6em}
+    }
+  </style>
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+  <div class="scanlines"></div>
+
+  <!-- 浮动传送门装饰 -->
+  <div class="portal-ring portal-ring-1"><div class="portal-ring-inner"></div></div>
+  <div class="portal-ring portal-ring-2"><div class="portal-ring-inner"></div></div>
+
+  <!-- 浮动维度数字 -->
+  <div class="dimension-float" style="left:5%;animation-delay:0s">C-137</div>
+  <div class="dimension-float" style="left:20%;animation-delay:3s;font-size:11px">C-218</div>
+  <div class="dimension-float" style="left:45%;animation-delay:7s;font-size:13px">C-500A</div>
+  <div class="dimension-float" style="left:65%;animation-delay:2s;font-size:10px">C-35</div>
+  <div class="dimension-float" style="left:85%;animation-delay:5s">C-132</div>
+  <div class="dimension-float" style="left:35%;animation-delay:10s;font-size:12px">C-998</div>
+  <div class="dimension-float" style="left:75%;animation-delay:8s;font-size:9px">C-772</div>
+  <div class="dimension-float" style="left:10%;animation-delay:12s">C-456</div>
+
+  <!-- 导航 -->
+  <header class="site-header">
+    <a href="{{ '/' | relative_url }}" class="site-title">
+      <span class="glitch" data-text="{{ site.title }}">🔬 {{ site.title }}</span>
+    </a>
+    <nav class="site-nav">
+      <a href="{{ '/' | relative_url }}">HOME</a>
+      {% for page in site.header_pages %}
+      <a href="{{ page.url | relative_url }}">{{ page.title | upcase }}</a>
+      {% endfor %}
+      <a href="https://github.com/{{ site.github_username }}" target="_blank">GITHUB</a>
+    </nav>
+  </header>
+
+  <!-- 主内容 -->
+  <main class="page-content" aria-label="Content">
+    {{ content }}
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="site-footer">
+    <p>&copy; {{ site.time | date: "%Y" }} {{ site.title }} | Powered by Jekyll &amp; GitHub Pages</p>
+    <p class="rick-says">// WUBBA LUBBA DUB DUB //</p>
+  </footer>
+
+  <!-- 回到顶部 -->
+  <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">🌀</button>
+
+  <script>
+    // 星空粒子
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    function createStars() {
+      stars = [];
+      for (let i = 0; i < 200; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2 + 0.5,
+          speed: Math.random() * 0.3 + 0.1,
+          opacity: Math.random() * 0.8 + 0.2,
+          color: ['#00ff41','#00bcd4','#76ff03','#66fcf1'][Math.floor(Math.random()*4)]
+        });
+      }
+    }
+    function animateStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fillStyle = star.color;
+        ctx.globalAlpha = star.opacity * (0.5 + 0.5 * Math.sin(Date.now() * 0.001 * star.speed));
+        ctx.fill();
+        star.y -= star.speed;
+        star.opacity += (Math.random() - 0.5) * 0.01;
+        star.opacity = Math.max(0.1, Math.min(1, star.opacity));
+        if (star.y < -5) { star.y = canvas.height + 5; star.x = Math.random() * canvas.width; }
+      });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(animateStars);
+    }
+    resizeCanvas(); createStars(); animateStars();
+    window.addEventListener('resize', () => { resizeCanvas(); createStars(); });
+
+    // 回到顶部按钮
+    const btn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      btn.classList.toggle('visible', window.scrollY > 400);
+    });
+
+    // Rick名言滚动复制（无缝循环）
+    document.querySelectorAll('.rick-quotes-scroll').forEach(el => {
+      el.innerHTML += el.innerHTML;
+    });
+  </script>
+</body>
 </html>
