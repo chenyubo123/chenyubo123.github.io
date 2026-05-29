@@ -1,18 +1,25 @@
 ---
 layout: page
-title: About
+title: "关于我"
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+# 🔬 About Me
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+> "I turned myself into a pickle, Morty! I'm Pickle Rick!"
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+你好，我是 **Chen Yubo**，一名热爱技术的大学生。就像Rick Sanchez一样，我对探索未知充满热情。
 
+## 🧪 技能树
 
-[jekyll-organization]: https://github.com/jekyll
+- 编程语言、数据科学、大数据
+- 静态网站开发（Jekyll/GitHub Pages）
+- 机器学习与模式识别
+
+## 🌌 联系方式
+
+- GitHub: [chenyubo123](https://github.com/chenyubo123)
+
+---
+
+*Don't think about it. Just do it. 🚀*
